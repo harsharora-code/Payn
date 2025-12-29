@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc --b",
+    "build": "tsc",
     "start": "node ./dist/index.js",
     "dev": "npm run build && npm run start"
   },
@@ -14,6 +14,7 @@
   "description": "",
   "devDependencies": {
     "@repo/db": "workspace:*",
+     "@repo/typescript-config": "workspace:*",
     "@types/express": "^5.0.6",
     "esbuild": "^0.27.2",
     "express": "^5.2.1"

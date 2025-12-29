@@ -43,6 +43,11 @@ model Balance {
   user   User @relation(fields: [userId], references: [id])
 }
 
+enum AuthType {
+  Google
+  Github
+}
+
 enum OnRampStatus {
   Success
   Failure

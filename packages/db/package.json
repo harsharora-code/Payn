@@ -18,8 +18,12 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^22.15.3",
     "prisma": "6.19.0",
     "typescript": "^5.3.3"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }
