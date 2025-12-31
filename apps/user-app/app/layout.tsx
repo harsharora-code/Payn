@@ -15,9 +15,9 @@ export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}): JSX.Element {
+}) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>
           <AppbarClient />
@@ -27,3 +27,4 @@ export default function RootLayout({
     </html>
   );
 }
+

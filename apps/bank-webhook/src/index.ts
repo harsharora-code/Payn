@@ -1,55 +1,53 @@
 import express from "express";
 import db from "@repo/db";
-const app = express();
 
-app.use(express.json())
+const app = express();
+app.use(express.json());
 
 app.post("/hdfcWebhook", async (req, res) => {
-    //TODO: Add zod validation here?
-    //TODO: HDFC bank should ideally send us a secret so we know this is sent by them
-    const paymentInformation: {
-        token: string;
-        userId: string;
-        amount: string
-    } = {
-        token: req.body.token,
-        userId: req.body.user_identifier,
-        amount: req.body.amount
-    };
+  const { token, user_identifier, amount } = req.body;
 
-    try {
-        await db.$transaction([
-            db.balance.updateMany({
-                where: {
-                    userId: Number(paymentInformation.userId)
-                },
-                data: {
-                    amount: {
-                        // You can also get this from your DB
-                        increment: Number(paymentInformation.amount)
-                    }
-                }
-            }),
-            db.onRampTransaction.updateMany({
-                where: {
-                    token: paymentInformation.token
-                }, 
-                data: {
-                    status: "Success",
-                }
-            })
-        ]);
+  if (!token || !user_identifier || !amount) {
+    return res.status(400).json({ message: "Invalid payload" });
+  }
 
-        res.json({
-            message: "Captured"
-        })
-    } catch(e) {
-        console.error(e);
-        res.status(411).json({
-            message: "Error while processing webhook"
-        })
-    }
+  const userId = Number(user_identifier);
+  const numericAmount = Number(amount);
 
-})
+  if (isNaN(userId) || isNaN(numericAmount)) {
+    return res.status(400).json({ message: "Invalid data types" });
+  }
 
-app.listen(3003);
+  try {
+    await db.$transaction([
+      // 1️⃣ Mark transaction as successful
+      db.onRampTransaction.update({
+        where: { token },
+        data: { status: "Success" },
+      }),
+
+      // 2️⃣ Ensure balance exists and increment
+      db.balance.upsert({
+        where: { userId },
+        update: {
+          amount: {
+            increment: numericAmount,
+          },
+        },
+        create: {
+          userId,
+          amount: numericAmount,
+        },
+      }),
+    ]);
+
+    return res.json({ message: "Captured" });
+  } catch (err) {
+    console.error("Webhook error:", err);
+    return res.status(500).json({ message: "Error while processing webhook" });
+  }
+});
+
+app.listen(3003, () => {
+  console.log("Bank webhook running on port 3003");
+});

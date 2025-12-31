@@ -3,8 +3,10 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-      "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "composite": true
   },
+  "references": [
+    { "path": "../../packages/db" }
+  ],
   "include": ["src"]
 }
