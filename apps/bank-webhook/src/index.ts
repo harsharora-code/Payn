@@ -19,35 +19,42 @@ app.post("/hdfcWebhook", async (req, res) => {
   }
 
   try {
-    await db.$transaction([
-      // 1️⃣ Mark transaction as successful
-      db.onRampTransaction.update({
-        where: { token },
-        data: { status: "Success" },
-      }),
+    const txn = await db.onRampTransaction.findUnique({
+      where: { token },
+    });
 
-      // 2️⃣ Ensure balance exists and increment
-      db.balance.upsert({
-        where: { userId },
-        update: {
-          amount: {
-            increment: numericAmount,
-          },
-        },
-        create: {
-          userId,
-          amount: numericAmount,
-        },
-      }),
-    ]);
+    if (!txn) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    
+    // if (txn.status === "Success") {
+    //   return res.json({ message: "Already processed" });
+    // }
+
+    await db.$transaction([
+  db.onRampTransaction.update({
+    where: { token },
+    data: { status: "Success" },
+  }),
+
+  db.balance.upsert({
+    where: { userId },
+    update: {
+      amount: { increment: numericAmount },
+    },
+    create: {
+      userId,
+      amount: numericAmount,
+      locked: 0,
+    },
+  }),
+]);
+
 
     return res.json({ message: "Captured" });
   } catch (err) {
     console.error("Webhook error:", err);
     return res.status(500).json({ message: "Error while processing webhook" });
   }
-});
-
-app.listen(3003, () => {
-  console.log("Bank webhook running on port 3003");
 });

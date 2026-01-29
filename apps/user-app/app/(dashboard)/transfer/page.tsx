@@ -13,7 +13,7 @@ async function getBalance() {
         }
     });
     return {
-        amount: balance?.amount || 0,
+        amount: balance?.amount,
         locked: balance?.locked || 0
     }
 }
@@ -31,7 +31,9 @@ async function getOnRampTransactions() {
         status: t.status,
         provider: t.provider
     }))
+    
 }
+
 
 export default async function() {
     const balance = await getBalance();
@@ -47,7 +49,7 @@ export default async function() {
                 <AddMoney />
             </div>
             <div>
-                <BalanceCard amount={balance.amount} locked={balance.locked} />
+                <BalanceCard amount={balance.amount ?? 0} locked={balance.locked ?? 0} />
                 <div className="pt-4">
                     <OnRampTransactions transactions={transactions} />
                 </div>
