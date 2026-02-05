@@ -32,7 +32,7 @@ app.post("/hdfcWebhook", async (req, res) => {
     //   return res.json({ message: "Already processed" });
     // }
 
-    await db.$transaction([
+  await db.$transaction([
   db.onRampTransaction.update({
     where: { token },
     data: { status: "Success" },
@@ -50,9 +50,7 @@ app.post("/hdfcWebhook", async (req, res) => {
     },
   }),
 ]);
-
-
-    return res.json({ message: "Captured" });
+return res.json({ message: "Captured" });
   } catch (err) {
     console.error("Webhook error:", err);
     return res.status(500).json({ message: "Error while processing webhook" });

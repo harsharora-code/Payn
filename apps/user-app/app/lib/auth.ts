@@ -17,47 +17,52 @@ export const authOptions = {
           async authorize(credentials: any) {
             if(!credentials?.phone || !credentials?.password) return  null;
             // Do zod validation, OTP validation here
+          
 
-            const existingUser = await db.user.findFirst({
-                where: {
-                    number: credentials.phone                                                                                                                                  
-                }
-            });
+             try {
+          const existingUser = await db.user.findFirst({
+            where: {
+              number: credentials.phone,
+            },
+          });
 
-            if (existingUser) {
-                
-                const passwordValidation = await bcrypt.compare(credentials.password, existingUser.password);
-                if (passwordValidation) {
-                    return {
-                        id: existingUser.id.toString(),
-                        name: existingUser.username,
-                        email: existingUser.email 
-                    };
-                }
-                return null;
-            }
-            const hashedPassword  = await bcrypt.hash(credentials.password, 10);
+          if (existingUser) {
+            const isValid = await bcrypt.compare(
+              credentials.password,
+              existingUser.password
+            );
 
-            try {
-                const user = await db.user.create({
-                    data: {
-                       email: credentials.email,
-                       username: credentials.username,
-                        number: credentials.phone,
-                        password: hashedPassword
-                    }
-                });
-            
-                return {
-                    id: user.id.toString(),
-                    name: user.username,
-                    email: user.email
-                };
-            } catch(e) {
-                console.error(e);
-            }
+            if (!isValid) return null;
 
-            return null
+            return {
+              id: String(existingUser.id),
+              name: existingUser.name,
+              email: existingUser.number,
+            };
+          }
+
+          
+          const hashedPassword = await bcrypt.hash(credentials.password, 10);
+
+          const user = await db.user.create({
+            data: {
+              email: credentials.email ?? null,
+              name: credentials.username ?? null,
+              number: credentials.phone,
+              password: hashedPassword,
+            },
+          });
+
+          return {
+            id: String(user.id),
+            name: user.name,
+            email: user.number,
+          };
+        } catch (error) {
+          console.error("Auth DB error:", error);
+          return null; // prevents redirect crash
+        }
+
           },
         })
     ],

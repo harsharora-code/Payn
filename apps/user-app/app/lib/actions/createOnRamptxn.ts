@@ -3,7 +3,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth";
 import prisma from "@repo/db";
-import { error } from "console";
 
 export async function createOnRampTransaction(amount: number, provider: string) {
   const session = await getServerSession(authOptions);
