@@ -15,7 +15,6 @@ export const authOptions = {
           },
           // TODO: User credentials type from next-auth
           async authorize(credentials: any) {
-            if(!credentials?.phone || !credentials?.password) return  null;
             // Do zod validation, OTP validation here
           
 
