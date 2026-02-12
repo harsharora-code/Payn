@@ -1,0 +1,23 @@
+name : Build on PR
+
+on: 
+  pull_request:
+    branches: 
+      -master
+
+jobs:
+  Build: 
+      runs-on: ubutnu-latest
+  steps: 
+    -users:  actions/checkout@v4
+
+    -users: actions/setup-node@v4
+
+    with: 
+          node-version: 20
+
+-name: Install Dependencies
+run : npm install
+
+-run: npx prisma generate
+-run: npm run build
