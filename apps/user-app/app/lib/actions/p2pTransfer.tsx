@@ -5,7 +5,7 @@ import db from "@repo/db"
 import { error } from "console";
  
 export async function p2pTransfer(to: string, amount: number) {
-    const session = getServerSession(authOptions);
+    const session =  await getServerSession(authOptions);
     const from = session?.user?.id;
     if(!from) {
         return {
